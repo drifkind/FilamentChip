@@ -1,6 +1,6 @@
 # FilamentChip
 
-This is an [OpenSCAD](https://openscad.org/) program to produce a sample chip (like a paint chip) for a particular filament (or resin or whatever else your 3D printer uses). I wrote it to play with OpenSCAD more than anything else.
+This is an [OpenSCAD](https://www.openscad.org/) program to produce a sample chip (like a paint chip) for a particular filament (or resin or whatever else your 3D printer uses). I wrote it to play with OpenSCAD more than anything else.
 
 There are various [customizable](https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Customizer) options:
 
