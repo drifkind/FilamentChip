@@ -151,12 +151,14 @@ module blank_chip() {
 //
 module label_text()
 {
-    if (caption2 == "") {
-        format_text_line(caption1);
-    } else {
-        scale([label_width_factor/100, 1]) union() {
-            translate([0, label_size + extra_caption_leading]) text(caption1, size=label_size, font=label_font, halign="center");
-            text(caption2, size=label_size, font=label_font, halign="center");
+    scale([label_width_factor/100, 1]) {
+        if (caption2 == "") {
+            format_text_line(caption1);
+        } else {
+            union() {
+                translate([0, label_size + extra_caption_leading]) text(caption1, size=label_size, font=label_font, halign="center");
+                text(caption2, size=label_size, font=label_font, halign="center");
+            }
         }
     }
 }
