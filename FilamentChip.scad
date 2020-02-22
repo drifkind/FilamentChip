@@ -18,9 +18,9 @@
 
 /* [Basics] */
 // Width of chip
-width = 25;
+width = 25; // [1:1000]
 // Height of chip
-height = 45;
+height = 45; // [1:1000]
 // Label above or below surface?
 incise_label = 0; // [0:Above, 1:Below]
 // Label text
@@ -28,7 +28,7 @@ caption1 = "CHIP";
 // Second line (optional)
 caption2 = "";
 // Compress or stretch label (percent)
-label_width_factor = 100; 
+label_width_factor = 100; // [1:1:1000]
 // Expand chip if label is too long
 expandable = false;
 // Binder hole
@@ -38,35 +38,35 @@ clip_corner = true;
 
 /* [Shape] */
 // Thickness of chip
-thickness = 2;
+thickness = 2; // [0.1:0.1:100]
 // Corner radius
-corner_radius = 2;
+corner_radius = 2; // [0.1:0.1:100]
 
 /* [Label] */
 // Font height
-label_size = 5;
+label_size = 5; // [0.1:0.1:100]
 // Font name
 label_font = "Arial Narrow:style=Bold";
 // Distance from bottom of chip
-label_baseline = 4;
+label_baseline = 4; // [0.1:0.1:100]
 // Padding at sides
-label_padding = 2;
+label_padding = 2; // [0.1:0.1:100]
 // Height/depth of label
-label_thickness = 1;
+label_thickness = 1; // [0.1:0.1:100]
 
 /* [Binder Hole] */
 // Hole location (only if basics/expandable is off)
 hole_location = -1; // [-1:Left, 0:Center, +1:Right]
 // Hole diameter
-hole_diameter = 5;
+hole_diameter = 5; // [0.1:0.1:100]
 // Distance from edge of chip
-hole_padding = 2;
+hole_padding = 2; // [0.1:0.1:100]
 
 /* [Clip Corner] */
 // Corner to clip
 which_corner = 0; // [-1:Left, 0:Opposite Hole, 1:Right]
 // Amount to clip
-clip_size = 7;
+clip_size = 7; // [0.1:0.1:100]
 
 /* [System] */
 // Curve smoothness
