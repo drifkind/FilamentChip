@@ -7,6 +7,9 @@
 // future version. For details see:
 //   <https://creativecommons.org/licenses/by-nc/3.0/>
 //
+// Revision history and latest version:
+//   <https://github.com/drifkind/FilamentChip/>
+//
 // Produce a 3D printer filament sample chip. (Or resin or other medium,
 // I guess.)
 //
