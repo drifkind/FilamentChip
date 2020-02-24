@@ -21,8 +21,8 @@
 width = 25; // [1:1000]
 // Height of chip
 height = 45; // [1:1000]
-// Label above or below surface?
-incise_label = 0; // [0:Above, 1:Below]
+// Treatment of label
+label_treatment = "relieve"; // ["emboss":Embossed, "engrave":Engraved, "relieve":Relieved]
 // Label text
 caption1 = "CHIP";
 // Second line (optional)
@@ -41,6 +41,8 @@ clip_corner = true;
 thickness = 2; // [0.1:0.1:100]
 // Corner radius
 corner_radius = 2; // [0.1:0.1:100]
+// Relieved border width
+border_width = 1; // [0.1:0.1:100]
 
 /* [Label] */
 // Font height
@@ -49,7 +51,7 @@ label_size = 5; // [0.1:0.1:100]
 label_font = "Arial Narrow:style=Bold";
 // Distance from bottom of chip
 label_baseline = 4; // [0.1:0.1:100]
-// Padding at sides
+// Padding at sides when chip is expandable
 label_padding = 2; // [0.1:0.1:100]
 // Height/depth of label
 label_thickness = 1; // [0.1:0.1:100]
@@ -74,7 +76,7 @@ $fn=100;
 
 module end_of_header() {}
 
-/* These are a little too miscellaneous for parameterization */
+/* A little too miscellaneous for parameterization */
 // Extra caption line spacing
 extra_caption_leading = 2;
 
@@ -84,73 +86,90 @@ tiny = 0.001;
 chip();
 
 module chip() {
-    if (incise_label) {
+    if (label_treatment == "engrave") {
         difference() {
             blank_chip();
             color("SteelBlue")
             translate([0, label_baseline, thickness-label_thickness]) linear_extrude(label_thickness+tiny) label_text();
-        }            
-    } else { 
-        union() {
+        }
+    }
+    if (label_treatment == "emboss") {
+        blank_chip();
+        // Clip the label to the edges of the chip, then stretch
+        // in Z to protrude above top surface
+        color("SteelBlue")
+        resize([0, 0, thickness+label_thickness]) {
+            intersection() {
+                blank_chip();
+                translate([0, label_baseline, 0]) linear_extrude(tiny) label_text();
+            }
+        }
+    }
+    if (label_treatment == "relieve") {
+        difference() {
             blank_chip();
-            // Clip the label to the edges of the chip, then stretch
-            // in Z to protrude above top surface
             color("SteelBlue")
-            resize([0, 0, thickness+label_thickness]) {
-                intersection() {
-                    blank_chip();
-                    translate([0, label_baseline, 0]) linear_extrude(tiny) label_text();
-                }
+            translate([0, 0, thickness-label_thickness]) linear_extrude(label_thickness+tiny)
+            difference() {
+                offset(r=-border_width) hull() blank_chip_outline();
+                translate([0, label_baseline]) label_text();
             }
         }
     }
 }
 
+// blank_chip
+//
 module blank_chip() {
     color("LightSteelBlue")
-    linear_extrude(thickness) {
-        difference() { // Binder hole, clip corner
-            offset(r=corner_radius) offset(r=-corner_radius) { // Round corners
-                if (expandable) {
-                    union() {
-                        // Calculated chip size:
-                        intersection() {
-                            // First term is a tall rectangle with jagged +Y/-Y
-                            // ends and width equal to label plus padding
-                            // Note: could 'offset(r=-tiny/2)' to make up
-                            // for 'square' width if you are obsessive
-                            minkowski() {
-                                offset(delta=label_padding) hull() label_text();
-                                square([tiny, huge], center=true);
-                            }
-                            // Second term is a wide rectangle with correct
-                            // height
-                            translate([-huge, 0]) square([huge*2, height]);
+    union() {
+        linear_extrude(thickness) blank_chip_outline();
+    }
+}
+
+// blank_chip_outline
+//
+module blank_chip_outline() {
+    difference() { // Binder hole, clip corner
+        offset(r=corner_radius) offset(r=-corner_radius) { // Round corners
+            if (expandable) {
+                union() {
+                    // Calculated chip size:
+                    intersection() {
+                        // First term is a tall rectangle with jagged +Y/-Y
+                        // ends and width equal to label plus padding
+                        // Note: could 'offset(r=-tiny/2)' to make up
+                        // for 'square' width if you are obsessive
+                        minkowski() {
+                            offset(delta=label_padding) hull() label_text();
+                            square([tiny, huge], center=true);
                         }
-                        // Minimum size:
-                        translate([-width/2, 0]) square([width, height]);
+                        // Second term is a wide rectangle with correct
+                        // height
+                        translate([-huge, 0]) square([huge*2, height]);
                     }
-                } else { // Not expandable
+                    // Minimum size:
                     translate([-width/2, 0]) square([width, height]);
                 }
-            } // offset
-            if (binder_hole) {
-                tx = (width/2 - hole_padding - hole_diameter/2) * (expandable ? 0 : hole_location);
-                translate([tx, height-hole_padding-hole_diameter/2]) circle(d=hole_diameter);
+            } else { // Not expandable
+                translate([-width/2, 0]) square([width, height]);
             }
-            if (clip_corner) {
-                which = which_corner ? which_corner : hole_location ? -hole_location : 1;
-                tx = (width/2 - clip_size) * which;
-                translate([tx, height]) rotate([0, 0, 45-90*which]) square([huge, huge]);
-            }
+        } // offset
+        if (binder_hole) {
+            tx = (width/2 - hole_padding - hole_diameter/2) * (expandable ? 0 : hole_location);
+            translate([tx, height-hole_padding-hole_diameter/2]) circle(d=hole_diameter);
+        }
+        if (clip_corner) {
+            which = which_corner ? which_corner : hole_location ? -hole_location : 1;
+            tx = (width/2 - clip_size) * which;
+            translate([tx, height]) rotate([0, 0, 45-90*which]) square([huge, huge]);
         }
     }
 }
 
 // label_text
 //
-module label_text()
-{
+module label_text() {
     scale([label_width_factor/100, 1]) {
         if (caption2 == "") {
             format_text_line(caption1);
@@ -164,7 +183,6 @@ module label_text()
 }
 
 // format_text_line
-module format_text_line(line)
-{
+module format_text_line(line) {
     text(line, size=label_size, font=label_font, halign="center");
 }
