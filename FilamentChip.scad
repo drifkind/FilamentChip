@@ -111,6 +111,7 @@ module chip() {
             color("SteelBlue")
             translate([0, 0, thickness-label_thickness]) linear_extrude(label_thickness+tiny)
             difference() {
+                // Use hull() to ignore binder hole
                 offset(r=-border_width) hull() blank_chip_outline();
                 translate([0, label_baseline]) label_text();
             }
@@ -136,11 +137,12 @@ module blank_chip_outline() {
                 union() {
                     // Calculated chip size:
                     intersection() {
-                        // First term is a tall rectangle with jagged +Y/-Y
+                        // Result is a tall rectangle with jagged +Y/-Y
                         // ends and width equal to label plus padding
                         // Note: could 'offset(r=-tiny/2)' to make up
                         // for 'square' width if you are obsessive
                         minkowski() {
+                            // hull() to simplify geometry
                             offset(delta=label_padding) hull() label_text();
                             square([tiny, huge], center=true);
                         }
@@ -175,8 +177,8 @@ module label_text() {
             format_text_line(caption1);
         } else {
             union() {
-                translate([0, label_size + extra_caption_leading]) text(caption1, size=label_size, font=label_font, halign="center");
-                text(caption2, size=label_size, font=label_font, halign="center");
+                translate([0, label_size + extra_caption_leading]) format_text_line(caption1);
+                format_text_line(caption2);
             }
         }
     }
